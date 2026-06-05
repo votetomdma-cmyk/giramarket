@@ -6,12 +6,12 @@ import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "h
 
 // !!! ВСТАВЬ СВОИ КЛЮЧИ СЮДА !!!
 const firebaseConfig = {
-  apiKey: "ТВОЙ_КЛЮЧ",
-  authDomain: "ТВОЙ_ДОМЕН",
-  projectId: "ТВОЙ_PROJECT_ID",
-  storageBucket: "ТВОЙ_BUCKET",
-  messagingSenderId: "ТВОЙ_SENDER_ID",
-  appId: "ТВОЙ_APP_ID"
+  apiKey: "AIzaSyAvziZ1M87lLtJJTH_Is3IIafXY8VmI8Fo",
+  authDomain: "giramarket-60f41.firebaseapp.com",
+  projectId: "giramarket-60f41",
+  storageBucket: "giramarket-60f41.firebasestorage.app",
+  messagingSenderId: "511808754118",
+  appId: "1:511808754118:web:231f4a498cdc4e0778a2c7"
 };
 
 const app = initializeApp(firebaseConfig);
