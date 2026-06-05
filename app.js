@@ -1,11 +1,12 @@
 // app.js
 
-// 1. Импортируем модули Firebase напрямую через CDN
+// 1. Импортируем модули Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+// ДОБАВИЛИ НОВЫЕ ФУНКЦИИ ДЛЯ БАЗЫ ДАННЫХ:
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// 2. ТВОЙ КОНФИГ FIREBASE
+// 2. ТВОЙ КОНФИГ FIREBASE (Вставь свои ключи!)
 const firebaseConfig = {
   apiKey: "AIzaSyAvziZ1M87lLtJJTH_Is3IIafXY8VmI8Fo",
   authDomain: "giramarket-60f41.firebaseapp.com",
@@ -27,69 +28,101 @@ const logoutBtn = document.getElementById('logout-btn');
 const userInfo = document.getElementById('user-info');
 const userName = document.getElementById('user-name');
 const newAdBtn = document.getElementById('new-ad-btn');
+const adsList = document.getElementById('ads-list'); // Контейнер для списка товаров
 
 // 5. Логика Авторизации
 loginBtn.addEventListener('click', () => {
-    signInWithPopup(auth, provider).catch((error) => {
-        console.error("Auth Error:", error);
-    });
+    signInWithPopup(auth, provider).catch((error) => console.error("Auth Error:", error));
 });
 
-logoutBtn.addEventListener('click', () => {
-    signOut(auth);
-});
+logoutBtn.addEventListener('click', () => signOut(auth));
 
-// Слушатель состояния (проверяет, залогинен ли юзер)
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Доступ разрешен
         loginBtn.style.display = 'none';
         userInfo.style.display = 'flex';
         userName.textContent = `USER: ${user.displayName.toUpperCase()}`;
-        newAdBtn.style.display = 'block'; // Показываем кнопку добавления товара
-        console.log("System Status: ACCESS GRANTED");
+        newAdBtn.style.display = 'block';
     } else {
-        // Доступ закрыт
         loginBtn.style.display = 'block';
         userInfo.style.display = 'none';
         newAdBtn.style.display = 'none';
-        console.log("System Status: OFFLINE");
     }
 });
 
 // 6. Инициализация Карты (Leaflet)
-// Центрируем карту: Буэнос-Айрес
 const map = L.map('map').setView([-34.6037, -58.3816], 12);
-
-// Темный слой карты (CartoDB Dark Matter)
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    attribution: '&copy; OSM',
     subdomains: 'abcd',
     maxZoom: 20
 }).addTo(map);
 
-// Убираем текст "Cargando mapa..."
 document.querySelector('.loading-text').style.display = 'none';
-console.log("MAP AND DATABASES INITIALIZED.");
 
-// --- Логика Модального Окна и GPS ---
+// Массив для хранения текущих маркеров на карте (чтобы удалять старые при обновлении)
+let currentMarkers = [];
 
-// 1. Подхватываем элементы
+// --- 7. РАДАР: Слушаем базу данных в реальном времени ---
+onSnapshot(collection(db, "items"), (snapshot) => {
+    // 1. Очищаем старые данные
+    adsList.innerHTML = '';
+    currentMarkers.forEach(marker => map.removeLayer(marker));
+    currentMarkers = [];
+
+    // 2. Если база пуста
+    if (snapshot.empty) {
+        adsList.innerHTML = `
+            <div class="status-box text-center">
+                <p>> ESCANEANDO ZONA...</p>
+                <p style="font-size: 12px; margin-top: 10px;">NO HAY ITEMS DETECTADOS AÚN.</p>
+            </div>`;
+        return;
+    }
+
+    // 3. Отрисовываем каждый товар
+    snapshot.forEach((doc) => {
+        const item = doc.data();
+        
+        // Создаем карточку в правом меню
+        const itemCard = document.createElement('div');
+        itemCard.className = 'status-box';
+        itemCard.style.textAlign = 'left';
+        itemCard.innerHTML = `
+            <div style="color: #64FFDA; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 5px; margin-bottom: 5px;">> ${item.title}</div>
+            <div style="color: #FF9F1C; font-size: 14px; margin-bottom: 10px;">[ ${item.price} ]</div>
+            <div style="color: #8892B0; font-size: 12px;">${item.desc}</div>
+            <div style="color: #555; font-size: 10px; margin-top: 10px;">SELLER: ${item.sellerName}</div>
+        `;
+        adsList.appendChild(itemCard);
+
+        // Ставим маркер на карту
+        if (item.location) {
+            const marker = L.circleMarker([item.location.lat, item.location.lng], {
+                color: '#64FFDA',
+                fillColor: '#64FFDA',
+                fillOpacity: 0.5,
+                radius: 6
+            }).addTo(map);
+            
+            // Всплывающее окно при клике на точку
+            marker.bindPopup(`<b>${item.title}</b><br>${item.price}`);
+            currentMarkers.push(marker);
+        }
+    });
+});
+
+// --- 8. Логика Модального Окна и GPS ---
 const modalOverlay = document.getElementById('modal-overlay');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const newItemForm = document.getElementById('new-item-form');
 const getLocationBtn = document.getElementById('get-location-btn');
 const geoStatus = document.getElementById('geo-status');
 
-// Переменная для хранения координат текущего товара
 let currentItemLocation = null;
 
-// 2. Открытие окна
-newAdBtn.addEventListener('click', () => {
-    modalOverlay.style.display = 'flex';
-});
+newAdBtn.addEventListener('click', () => modalOverlay.style.display = 'flex');
 
-// 3. Закрытие и сброс формы
 function closeModal() {
     modalOverlay.style.display = 'none';
     newItemForm.reset();
@@ -101,66 +134,68 @@ function closeModal() {
 }
 
 closeModalBtn.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
 
-modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) closeModal();
-});
-
-// 4. Запрос GPS координат
 getLocationBtn.addEventListener('click', () => {
     geoStatus.textContent = "> TRIANGULANDO_POSICIÓN...";
     geoStatus.className = "geo-status-text";
 
     if (!navigator.geolocation) {
-        geoStatus.textContent = "ERROR: GPS_NO_SOPORTADO_POR_EL_SISTEMA";
+        geoStatus.textContent = "ERROR: GPS_NO_SOPORTADO";
         geoStatus.classList.add('text-error');
         return;
     }
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            // Успех: координаты получены
-            currentItemLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
+            currentItemLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
             geoStatus.textContent = `> LOCK: [${currentItemLocation.lat.toFixed(4)}, ${currentItemLocation.lng.toFixed(4)}]`;
             geoStatus.classList.add('text-success');
-            
-            // Меняем цвет кнопки на зеленый
             getLocationBtn.style.color = "#50FA7B";
             getLocationBtn.style.borderColor = "#50FA7B";
         },
         (error) => {
-            // Ошибка: юзер не дал права или GPS выключен
             geoStatus.textContent = "ERROR: ACCESO_GPS_DENEGADO";
             geoStatus.classList.add('text-error');
-            console.error("GPS Error:", error);
         }
     );
 });
 
-// 5. Перехват отправки формы
-newItemForm.addEventListener('submit', (e) => {
+// --- 9. ОТПРАВКА ДАННЫХ В FIREBASE ---
+newItemForm.addEventListener('submit', async (e) => {
     e.preventDefault(); 
     
-    // Блокируем отправку, если координаты не собраны
     if (!currentItemLocation) {
         geoStatus.textContent = "ERROR: REQUIERE_ESCANEO_GPS_PREVIO";
         geoStatus.classList.add('text-error');
         return;
     }
 
-    const title = document.getElementById('item-title').value;
-    const desc = document.getElementById('item-desc').value;
-    const price = document.getElementById('item-price').value;
+    // Меняем текст кнопки, пока идет загрузка
+    const submitBtn = newItemForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "> UPLOADING...";
+    submitBtn.disabled = true;
 
-    console.log("> DATA READY FOR UPLOAD:", { 
-        title, 
-        desc, 
-        price, 
-        location: currentItemLocation 
-    });
-    
-    closeModal();
+    try {
+        // Пушим данные в коллекцию 'items'
+        await addDoc(collection(db, "items"), {
+            title: document.getElementById('item-title').value,
+            desc: document.getElementById('item-desc').value,
+            price: document.getElementById('item-price').value,
+            location: currentItemLocation,
+            sellerName: auth.currentUser.displayName, // Имя продавца из Google
+            sellerId: auth.currentUser.uid,           // Уникальный ID продавца
+            timestamp: serverTimestamp()              // Время сервера Google
+        });
+
+        console.log("> UPLOAD COMPLETE.");
+        closeModal();
+    } catch (error) {
+        console.error("Upload Error:", error);
+        alert("Ошибка загрузки. Проверьте консоль.");
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
 });
