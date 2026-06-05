@@ -91,5 +91,31 @@
     <!-- Скрипты -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="app.js"></script>
+    <!-- Всплывающий терминал для добавления товара (скрыт по умолчанию) -->
+    <div id="modal-overlay" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-header flex-between">
+                <span>> INIT_NEW_ITEM_SEQUENCE</span>
+                <button id="close-modal-btn" class="sys-btn-small">[X]</button>
+            </div>
+            <div class="modal-body">
+                <form id="new-item-form" class="cyber-form">
+                    <div class="form-group">
+                        <label>> TÍTULO_DEL_ITEM:</label>
+                        <input type="text" id="item-title" required placeholder="Ej: Monitor CRT Vintage" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label>> DESCRIPCIÓN:</label>
+                        <textarea id="item-desc" required placeholder="Detalles, estado, specs..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>> PRECIO (USD/ARS):</label>
+                        <input type="text" id="item-price" required placeholder="Ej: 50 USD" autocomplete="off">
+                    </div>
+                    <button type="submit" class="sys-btn w-full mt-4">> EJECUTAR_UPLOAD</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

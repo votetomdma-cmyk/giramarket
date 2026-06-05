@@ -72,3 +72,44 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
 document.querySelector('.loading-text').style.display = 'none';
 
 console.log("MAP AND DATABASES INITIALIZED.");
+
+// --- Логика Модального Окна ---
+
+// 1. Подхватываем элементы
+const modalOverlay = document.getElementById('modal-overlay');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const newItemForm = document.getElementById('new-item-form');
+
+// 2. Открытие окна
+newAdBtn.addEventListener('click', () => {
+    modalOverlay.style.display = 'flex';
+});
+
+// 3. Закрытие по кнопке [X]
+closeModalBtn.addEventListener('click', () => {
+    modalOverlay.style.display = 'none';
+});
+
+// 4. Закрытие при клике на темный фон (вне формы)
+modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+        modalOverlay.style.display = 'none';
+    }
+});
+
+// 5. Перехват отправки формы
+newItemForm.addEventListener('submit', (e) => {
+    e.preventDefault(); // Строго запрещаем браузеру перезагружать страницу
+    
+    // Собираем данные из полей
+    const title = document.getElementById('item-title').value;
+    const desc = document.getElementById('item-desc').value;
+    const price = document.getElementById('item-price').value;
+
+    console.log("> DATA READY FOR UPLOAD:", { title, desc, price });
+    
+    // Временно: просто закрываем окно и очищаем поля
+    // В следующем шаге мы отправим эти данные в Firebase и нарисуем точку на карте!
+    modalOverlay.style.display = 'none';
+    newItemForm.reset();
+});
