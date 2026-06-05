@@ -176,6 +176,10 @@ body::before {
 }
 
 .panel-header {
+    display: flex;          /* Включаем флекс для обеих шапок */
+    align-items: center;    /* Центрируем содержимое по вертикали */
+    min-height: 45px;       /* Жестко фиксируем высоту, чтобы линии совпали */
+    box-sizing: border-box;
     font-size: 18px;
     color: #FFFFFF;
     border-bottom: 1px solid #64FFDA;
