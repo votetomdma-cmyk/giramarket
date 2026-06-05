@@ -172,7 +172,8 @@ body::before {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
-    height: 70vh;
+    height: 70vh; /* Жестко фиксируем высоту */
+    min-height: 500px; /* Чтобы на маленьких экранах не сплющило карту */
 }
 
 .panel-header {
@@ -229,11 +230,14 @@ body::before {
     flex-direction: column;
     border-left: 1px dashed #333;
     padding-left: 20px;
+    height: 100%; /* Запрещаем расти за пределы app-grid */
+    min-height: 0; /* Магический хак CSS: запрещает флексу растягиваться от контента */
 }
 
 .items-list {
     flex-grow: 1;
-    overflow-y: auto;
+    overflow-y: auto; /* Включаем скролл... */
+    height: 0; /* ...и заставляем его работать строго внутри контейнера */
     padding-right: 10px;
 }
 
