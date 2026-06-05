@@ -284,3 +284,21 @@ body::before {
         gap: 10px;
     }
 }
+
+/* --- FIX: Вёрстка правой панели при логине --- */
+.panel-header.flex-between {
+    flex-wrap: nowrap;
+    gap: 10px;
+}
+
+.panel-header.flex-between span {
+    white-space: nowrap;
+    font-size: 16px;
+}
+
+#new-ad-btn {
+    white-space: nowrap;
+    padding: 6px 10px;
+    font-size: 12px;
+    height: fit-content;
+}
