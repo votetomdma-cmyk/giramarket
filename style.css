@@ -1,0 +1,286 @@
+/* --- ESTÉTICA CYPHERPUNK (FOCO AI) --- */
+@keyframes text-flicker {
+    0% { opacity: 0.9; text-shadow: 0 0 5px rgba(100, 255, 218, 0.5); }
+    5% { opacity: 0.7; text-shadow: 0 0 3px rgba(100, 255, 218, 0.4); }
+    10% { opacity: 1; text-shadow: 0 0 6px rgba(100, 255, 218, 0.6); }
+    15% { opacity: 0.6; text-shadow: 0 0 2px rgba(100, 255, 218, 0.3); }
+    20% { opacity: 1; text-shadow: 0 0 5px rgba(100, 255, 218, 0.5); }
+    100% { opacity: 1; text-shadow: 0 0 5px rgba(100, 255, 218, 0.5); }
+}
+
+body {
+    background-color: #000000;
+    color: #64FFDA;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 0 3px rgba(100, 255, 218, 0.4);
+    overflow-x: hidden;
+}
+
+body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.container {
+    width: 90%;
+    max-width: 960px;
+    margin: 20px auto;
+    background-color: rgba(10, 25, 47, 0.4);
+    border: 1px solid #64FFDA;
+    box-shadow: 0 0 20px rgba(100, 255, 218, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+/* --- HEADER & ЛОГОТИП --- */
+.header {
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid #64FFDA;
+}
+
+.logo-container {
+    max-width: 300px;
+    margin: 0 auto 10px auto;
+    animation: text-flicker 5s infinite alternate;
+    filter: drop-shadow(0 0 8px rgba(100, 255, 218, 0.4));
+}
+
+.logo-container svg {
+    width: 100%;
+    height: auto;
+}
+
+.header .slogan {
+    margin: 10px 0 0;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #64FFDA;
+}
+
+.header .beta-tag {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 2px 10px;
+    border: 1px solid #FF4136;
+    color: #FF4136;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* --- NAVBAR & AUTH --- */
+.navbar {
+    background-color: rgba(17, 34, 64, 0.3);
+    border-bottom: 1px solid #64FFDA;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.nav-tabs a {
+    display: inline-block;
+    padding: 8px 20px;
+    text-decoration: none;
+    color: #64FFDA;
+    border: 1px solid transparent;
+    margin: 0 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.nav-tabs a:hover, .nav-tabs a.active {
+    background-color: #64FFDA;
+    color: #000000;
+    text-shadow: none;
+}
+
+.auth-module {
+    display: flex;
+    align-items: center;
+}
+
+/* --- BUTTONS --- */
+.sys-btn {
+    background: transparent;
+    color: #64FFDA;
+    border: 1px solid #64FFDA;
+    padding: 8px 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s;
+}
+
+.sys-btn:hover {
+    background: #64FFDA;
+    color: #000;
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+}
+
+.sys-btn-small {
+    background: transparent;
+    color: #FF4136;
+    border: none;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-left: 10px;
+}
+
+.user-text {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+/* --- APP LAYOUT (GRID) --- */
+.main-content {
+    padding: 20px;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    height: 70vh;
+}
+
+.panel-header {
+    font-size: 18px;
+    color: #FFFFFF;
+    border-bottom: 1px solid #64FFDA;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* --- MAPA (HACK DE MODO OSCURO) --- */
+.map-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.map-container {
+    flex-grow: 1;
+    border: 1px solid #333;
+    background-color: #0a192f;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Магия: делаем стандартную светлую карту Leaflet темной! */
+.leaflet-layer,
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out,
+.leaflet-control-attribution {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+.loading-text {
+    color: #8892B0;
+    animation: text-flicker 2s infinite;
+}
+
+/* --- LISTA DE ANUNCIOS --- */
+.ads-panel {
+    display: flex;
+    flex-direction: column;
+    border-left: 1px dashed #333;
+    padding-left: 20px;
+}
+
+.items-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Стилизация скроллбара под киберпанк */
+.items-list::-webkit-scrollbar {
+    width: 5px;
+}
+.items-list::-webkit-scrollbar-track {
+    background: #0a192f; 
+}
+.items-list::-webkit-scrollbar-thumb {
+    background: #64FFDA; 
+}
+
+.status-box {
+    background-color: rgba(100, 255, 218, 0.1);
+    border: 1px dashed #64FFDA;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.footer {
+    text-align: center;
+    font-size: 12px;
+    color: #8892B0;
+    padding: 20px;
+    border-top: 1px solid #64FFDA;
+    background-color: rgba(17, 34, 64, 0.3);
+}
+
+/* --- MOBILE --- */
+@media (max-width: 800px) {
+    .app-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    .map-container {
+        height: 300px;
+    }
+    .ads-panel {
+        border-left: none;
+        border-top: 1px dashed #333;
+        padding-left: 0;
+        padding-top: 20px;
+    }
+    .nav-tabs {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
