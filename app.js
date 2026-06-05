@@ -113,3 +113,96 @@ newItemForm.addEventListener('submit', (e) => {
     modalOverlay.style.display = 'none';
     newItemForm.reset();
 });
+
+// --- Логика Модального Окна и GPS ---
+
+// 1. Подхватываем элементы
+const modalOverlay = document.getElementById('modal-overlay');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const newItemForm = document.getElementById('new-item-form');
+const getLocationBtn = document.getElementById('get-location-btn');
+const geoStatus = document.getElementById('geo-status');
+
+// Переменная для хранения координат текущего товара
+let currentItemLocation = null;
+
+// 2. Открытие окна
+newAdBtn.addEventListener('click', () => {
+    modalOverlay.style.display = 'flex';
+});
+
+// 3. Закрытие и сброс формы
+function closeModal() {
+    modalOverlay.style.display = 'none';
+    newItemForm.reset();
+    currentItemLocation = null;
+    geoStatus.textContent = "ESPERANDO_COORDENADAS...";
+    geoStatus.className = "geo-status-text";
+    getLocationBtn.style.color = "#FF9F1C";
+    getLocationBtn.style.borderColor = "#FF9F1C";
+}
+
+closeModalBtn.addEventListener('click', closeModal);
+
+modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+});
+
+// 4. Запрос GPS координат
+getLocationBtn.addEventListener('click', () => {
+    geoStatus.textContent = "> TRIANGULANDO_POSICIÓN...";
+    geoStatus.className = "geo-status-text";
+
+    if (!navigator.geolocation) {
+        geoStatus.textContent = "ERROR: GPS_NO_SOPORTADO_POR_EL_SISTEMA";
+        geoStatus.classList.add('text-error');
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            // Успех: координаты получены
+            currentItemLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            geoStatus.textContent = `> LOCK: [${currentItemLocation.lat.toFixed(4)}, ${currentItemLocation.lng.toFixed(4)}]`;
+            geoStatus.classList.add('text-success');
+            
+            // Меняем цвет кнопки на зеленый
+            getLocationBtn.style.color = "#50FA7B";
+            getLocationBtn.style.borderColor = "#50FA7B";
+        },
+        (error) => {
+            // Ошибка: юзер не дал права или GPS выключен
+            geoStatus.textContent = "ERROR: ACCESO_GPS_DENEGADO";
+            geoStatus.classList.add('text-error');
+            console.error("GPS Error:", error);
+        }
+    );
+});
+
+// 5. Перехват отправки формы
+newItemForm.addEventListener('submit', (e) => {
+    e.preventDefault(); 
+    
+    // Блокируем отправку, если координаты не собраны
+    if (!currentItemLocation) {
+        geoStatus.textContent = "ERROR: REQUIERE_ESCANEO_GPS_PREVIO";
+        geoStatus.classList.add('text-error');
+        return;
+    }
+
+    const title = document.getElementById('item-title').value;
+    const desc = document.getElementById('item-desc').value;
+    const price = document.getElementById('item-price').value;
+
+    console.log("> DATA READY FOR UPLOAD:", { 
+        title, 
+        desc, 
+        price, 
+        location: currentItemLocation 
+    });
+    
+    closeModal();
+});
