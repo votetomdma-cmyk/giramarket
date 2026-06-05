@@ -5,7 +5,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebas
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// 2. ТВОЙ КОНФИГ FIREBASE (Скопируй свои значения из текстового файла)
+// 2. ТВОЙ КОНФИГ FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAvziZ1M87lLtJJTH_Is3IIafXY8VmI8Fo",
   authDomain: "giramarket-60f41.firebaseapp.com",
@@ -61,7 +61,7 @@ onAuthStateChanged(auth, (user) => {
 // Центрируем карту: Буэнос-Айрес
 const map = L.map('map').setView([-34.6037, -58.3816], 12);
 
-// Темный слой карты (CartoDB Dark Matter), идеально под киберпанк
+// Темный слой карты (CartoDB Dark Matter)
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
     subdomains: 'abcd',
@@ -70,49 +70,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
 
 // Убираем текст "Cargando mapa..."
 document.querySelector('.loading-text').style.display = 'none';
-
 console.log("MAP AND DATABASES INITIALIZED.");
-
-// --- Логика Модального Окна ---
-
-// 1. Подхватываем элементы
-const modalOverlay = document.getElementById('modal-overlay');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const newItemForm = document.getElementById('new-item-form');
-
-// 2. Открытие окна
-newAdBtn.addEventListener('click', () => {
-    modalOverlay.style.display = 'flex';
-});
-
-// 3. Закрытие по кнопке [X]
-closeModalBtn.addEventListener('click', () => {
-    modalOverlay.style.display = 'none';
-});
-
-// 4. Закрытие при клике на темный фон (вне формы)
-modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) {
-        modalOverlay.style.display = 'none';
-    }
-});
-
-// 5. Перехват отправки формы
-newItemForm.addEventListener('submit', (e) => {
-    e.preventDefault(); // Строго запрещаем браузеру перезагружать страницу
-    
-    // Собираем данные из полей
-    const title = document.getElementById('item-title').value;
-    const desc = document.getElementById('item-desc').value;
-    const price = document.getElementById('item-price').value;
-
-    console.log("> DATA READY FOR UPLOAD:", { title, desc, price });
-    
-    // Временно: просто закрываем окно и очищаем поля
-    // В следующем шаге мы отправим эти данные в Firebase и нарисуем точку на карте!
-    modalOverlay.style.display = 'none';
-    newItemForm.reset();
-});
 
 // --- Логика Модального Окна и GPS ---
 
